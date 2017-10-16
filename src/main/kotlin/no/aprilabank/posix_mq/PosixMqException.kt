@@ -48,7 +48,7 @@ fun PosixMqError.description(): String {
  *
  * Please see the Rust implementation of this library for more information.
  */
-fun errno.toPosixMqError(): PosixMqError {
+fun Int.toPosixMqError(): PosixMqError {
     return when (this) {
         ENOENT -> QueueNotFound
         EINTR  -> QueueCallInterrupted

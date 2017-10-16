@@ -15,10 +15,17 @@ typealias mqd_t = Int
  */
 typealias mode_t = Int
 
-/**
- * The errno type represents return error codes.
- */
-typealias errno = Int
+// Possible error codes. Please see the mapping in 'PosixMqException.kt' for more details on what these mean.
+const val SUCCESS = -1
+const val ENOENT = 2
+const val EINTR  = 4
+const val EBADF  = 9
+const val ENOMEM = 12
+const val EACCES = 13
+const val EEXIST = 17
+const val ENFILE = 23
+const val EMFILE = 24
+const val ENOSPC = 28
 
 /**
  * This class represents the attributes that can be set on a POSIX message queue. See mq_open(3) for more information.
@@ -135,13 +142,17 @@ interface PosixMq: Library {
     fun mq_getattr(mqdes: mqd_t, attr: MqAttr): Int
 }
 
-// Possible error codes. Please see the mapping in 'PosixMqException.kt' for more details on what these mean.
-const val ENOENT = 2
-const val EINTR  = 4
-const val EBADF  = 9
-const val ENOMEM = 12
-const val EACCES = 13
-const val EEXIST = 17
-const val ENFILE = 23
-const val EMFILE = 24
-const val ENOSPC = 28
+/**
+ * Calling any library function wrapped inside of this method will cause a PosixMqException to be thrown on library
+ * errors.
+ *
+ * The exception will contain a description of the error that has been mapped from the C-errnos.
+ */
+fun <R> withMappedException(f: () -> R): R {
+    try {
+        return f()
+    } catch (e: LastErrorException) {
+        val mqError = e.errorCode.toPosixMqError()
+        throw PosixMqException(mqError)
+    }
+}
