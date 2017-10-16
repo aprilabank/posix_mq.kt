@@ -27,6 +27,13 @@ const val ENFILE = 23
 const val EMFILE = 24
 const val ENOSPC = 28
 
+// Possible queue options
+const val O_RDONLY = 0
+const val O_WRONLY = 1
+const val O_RDWR = 2
+const val O_CREAT = 64 // 0o0100
+const val O_EXCL = 128 // 0o0200
+
 /**
  * This class represents the attributes that can be set on a POSIX message queue. See mq_open(3) for more information.
  *
