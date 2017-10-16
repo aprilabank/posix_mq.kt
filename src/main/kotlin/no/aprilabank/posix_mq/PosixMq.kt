@@ -126,3 +126,14 @@ interface PosixMq: Library {
      */
     fun mq_getattr(mqdes: mqd_t, attr: MqAttr): errno
 }
+
+// Possible error codes. Please see the mapping in 'PosixMqException.kt' for more details on what these mean.
+const val ENOENT = 2
+const val EINTR  = 4
+const val EBADF  = 9
+const val ENOMEM = 12
+const val EACCES = 13
+const val EEXIST = 17
+const val ENFILE = 23
+const val EMFILE = 24
+const val ENOSPC = 28
