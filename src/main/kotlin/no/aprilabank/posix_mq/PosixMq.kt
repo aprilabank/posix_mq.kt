@@ -1,5 +1,6 @@
 package no.aprilabank.posix_mq
 
+import com.sun.jna.LastErrorException
 import com.sun.jna.Library
 import com.sun.jna.Native
 import com.sun.jna.Structure
@@ -66,6 +67,7 @@ interface PosixMq: Library {
      * @param oflag Flags to open the queue with
      * @return Queue descriptor
      */
+    @Throws(LastErrorException::class)
     fun mq_open(name: String, oflag: Int): mqd_t
 
     /**
@@ -77,7 +79,8 @@ interface PosixMq: Library {
      * @param mode    Filesystem mode for newly created descriptor
      * @param mq_attr Queue attributes for newly created queue
      */
-    fun mq_open(name: String, oflag: Int, mode: mode_t, mq_attr: MqAttr)
+    @Throws(LastErrorException::class)
+    fun mq_open(name: String, oflag: Int, mode: mode_t, mq_attr: MqAttr?): mqd_t
 
     /**
      * Close a queue descriptor. See mq_close(3).
@@ -85,7 +88,8 @@ interface PosixMq: Library {
      * @param mqdes The queue descriptor to close
      * @return error code
      */
-    fun mq_close(mqdes: mqd_t): errno
+    @Throws(LastErrorException::class)
+    fun mq_close(mqdes: mqd_t): Int
 
     /**
      * Unlink (i.e. delete) a message queue. See mq_unlink(3).
@@ -93,7 +97,8 @@ interface PosixMq: Library {
      * This will stop new clients from connecting to the message queue, but all existing queue descriptors must be
      * closed before the queue is actually deallocated.
      */
-    fun mq_unlink(name: String): errno
+    @Throws(LastErrorException::class)
+    fun mq_unlink(name: String): Int
 
     /**
      * Receive a message from the message queue. See mq_receive(3).
@@ -104,7 +109,8 @@ interface PosixMq: Library {
      * @param msg_prio The Int to write the message priority into
      * @return Number of bytes in message or error code
      */
-    fun mq_receive(mqdes: mqd_t, char: ByteArray, msg_len: Int, msg_prio: Int): Int
+    @Throws(LastErrorException::class)
+    fun mq_receive(mqdes: mqd_t, char: ByteArray, msg_len: Long, msg_prio: Int): Int
 
 
     /**
@@ -115,7 +121,8 @@ interface PosixMq: Library {
      * @param msg_len  Length of the message
      * @param msg_prio Priority of the message
      */
-    fun mq_send(mqdes: mqd_t, char: ByteArray, msg_len: Int, msg_prio: Int): errno
+    @Throws(LastErrorException::class)
+    fun mq_send(mqdes: mqd_t, char: ByteArray, msg_len: Long, msg_prio: Int): Int
 
     /**
      * Get currently set attributes of a message queue. See mq_getattr(3).
@@ -124,7 +131,8 @@ interface PosixMq: Library {
      * @param attr  MqAttr instance to write the attributes into.
      * @return Error code
      */
-    fun mq_getattr(mqdes: mqd_t, attr: MqAttr): errno
+    @Throws(LastErrorException::class)
+    fun mq_getattr(mqdes: mqd_t, attr: MqAttr): Int
 }
 
 // Possible error codes. Please see the mapping in 'PosixMqException.kt' for more details on what these mean.
