@@ -36,10 +36,10 @@ const val ENOSPC = 28
  * @property mq_curmsgs # of messages currently enqueued
  */
 class MqAttr(
-        val mq_flags: Long,
-        val mq_maxmsg: Long,
-        val mq_msgsize: Long,
-        val mq_curmsgs: Long
+        @JvmField val mq_flags: Long,
+        @JvmField val mq_maxmsg: Long,
+        @JvmField val mq_msgsize: Long,
+        @JvmField val mq_curmsgs: Long
 ): Structure() {
     override fun getFieldOrder(): List<String> {
         // This order has to match the C-struct definition.
