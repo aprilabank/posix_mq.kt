@@ -31,13 +31,14 @@ data class Queue(
             val oflag = (O_RDWR or O_CREAT or O_EXCL)
             val mode = 384 // 0600 (Kotlin does not support octal literals)
             val descriptor = withMappedException { POSIX_MQ.mq_open(name, oflag, mode, null) }
+
             val attr = withMappedException {
-                val attr = MqAttr(0, 0, 0, 0)
+                val attr = MqAttr.empty()
                 POSIX_MQ.mq_getattr(descriptor, attr)
                 return@withMappedException attr
             }
 
-            return Queue(name, descriptor, attr.mq_maxmsg, attr.mq_msgsize)
+            return Queue(name, descriptor, attr.mq_maxmsg.toLong(), attr.mq_msgsize.toLong())
         }
 
         /**
@@ -48,13 +49,14 @@ data class Queue(
         fun open(name: String): Queue {
             validateName(name)
             val descriptor = withMappedException { POSIX_MQ.mq_open(name, O_RDWR) }
+
             val attr = withMappedException {
-                val attr = MqAttr(0, 0, 0, 0)
+                val attr = MqAttr.empty()
                 POSIX_MQ.mq_getattr(descriptor, attr)
                 return@withMappedException attr
             }
 
-            return Queue(name, descriptor, attr.mq_maxmsg, attr.mq_msgsize)
+            return Queue(name, descriptor, attr.mq_maxmsg.toLong(), attr.mq_msgsize.toLong())
         }
 
         /**
@@ -70,12 +72,12 @@ data class Queue(
             val mode = 384 // 0600 (Kotlin does not support octal literals)
             val descriptor = withMappedException { POSIX_MQ.mq_open(name, oflag, mode, null) }
             val attr = withMappedException {
-                val attr = MqAttr(0, 0, 0, 0)
+                val attr = MqAttr.empty()
                 POSIX_MQ.mq_getattr(descriptor, attr)
                 return@withMappedException attr
             }
 
-            return Queue(name, descriptor, attr.mq_maxmsg, attr.mq_msgsize)
+            return Queue(name, descriptor, attr.mq_maxmsg.toLong(), attr.mq_msgsize.toLong())
         }
 
         @Throws(PosixMqException::class)

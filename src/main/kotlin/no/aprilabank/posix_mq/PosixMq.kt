@@ -3,6 +3,7 @@ package no.aprilabank.posix_mq
 import com.sun.jna.LastErrorException
 import com.sun.jna.Library
 import com.sun.jna.Native
+import com.sun.jna.NativeLong
 import com.sun.jna.Structure
 
 /**
@@ -43,11 +44,22 @@ const val O_EXCL = 128 // 0o0200
  * @property mq_curmsgs # of messages currently enqueued
  */
 class MqAttr(
-        @JvmField val mq_flags: Long,
-        @JvmField val mq_maxmsg: Long,
-        @JvmField val mq_msgsize: Long,
-        @JvmField val mq_curmsgs: Long
-): Structure() {
+        @JvmField val mq_flags: NativeLong,
+        @JvmField val mq_maxmsg: NativeLong,
+        @JvmField val mq_msgsize: NativeLong,
+        @JvmField val mq_curmsgs: NativeLong
+) : Structure() {
+    companion object {
+        fun empty(): MqAttr {
+            return MqAttr(
+                    NativeLong(0),
+                    NativeLong(0),
+                    NativeLong(0),
+                    NativeLong(0)
+            )
+        }
+    }
+
     override fun getFieldOrder(): List<String> {
         // This order has to match the C-struct definition.
         return listOf("mq_flags", "mq_maxmsg", "mq_msgsize", "mq_curmsgs")
