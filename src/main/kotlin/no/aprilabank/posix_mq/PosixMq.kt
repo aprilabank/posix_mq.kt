@@ -44,10 +44,10 @@ const val O_EXCL = 128 // 0o0200
  * @property mq_curmsgs # of messages currently enqueued
  */
 class MqAttr(
-        @JvmField val mq_flags: NativeLong,
-        @JvmField val mq_maxmsg: NativeLong,
-        @JvmField val mq_msgsize: NativeLong,
-        @JvmField val mq_curmsgs: NativeLong
+        @JvmField var mq_flags: NativeLong,
+        @JvmField var mq_maxmsg: NativeLong,
+        @JvmField var mq_msgsize: NativeLong,
+        @JvmField var mq_curmsgs: NativeLong
 ) : Structure() {
     companion object {
         fun empty(): MqAttr {
