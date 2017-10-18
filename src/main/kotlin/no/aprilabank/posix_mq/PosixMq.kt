@@ -75,7 +75,7 @@ class MqAttr(
  *
  * @see Queue
  */
-interface PosixMq: Library {
+interface PosixMq : Library {
     companion object {
         /**
          * This method is used to instantiate the JNA library bindings.
