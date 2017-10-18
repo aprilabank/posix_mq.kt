@@ -12,7 +12,10 @@ Usage example:
 
 ```kotlin
 // Queue creation with system defaults is simple:
-val queue = Queue.openOrCreate("/test-queue")
+val queue = Queue.create("/test-queue")
+
+// Opening a queue requires the user to specify the queue size if it deviates from the system default
+val queue = Queue.open("/test-queue", 8192)
 
 // Sending a message:
 val message = Message("test-message".toByteArray(), 0)
