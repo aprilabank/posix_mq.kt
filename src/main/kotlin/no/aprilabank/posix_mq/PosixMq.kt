@@ -44,22 +44,11 @@ const val O_EXCL = 128 // 0o0200
  * @property mq_curmsgs # of messages currently enqueued
  */
 class MqAttr(
-        @JvmField var mq_flags: NativeLong,
-        @JvmField var mq_maxmsg: NativeLong,
-        @JvmField var mq_msgsize: NativeLong,
-        @JvmField var mq_curmsgs: NativeLong
+        @JvmField @Volatile var mq_flags: NativeLong,
+        @JvmField @Volatile var mq_maxmsg: NativeLong,
+        @JvmField @Volatile var mq_msgsize: NativeLong,
+        @JvmField @Volatile var mq_curmsgs: NativeLong
 ) : Structure() {
-    companion object {
-        fun empty(): MqAttr {
-            return MqAttr(
-                    NativeLong(0),
-                    NativeLong(0),
-                    NativeLong(0),
-                    NativeLong(0)
-            )
-        }
-    }
-
     override fun getFieldOrder(): List<String> {
         // This order has to match the C-struct definition.
         return listOf("mq_flags", "mq_maxmsg", "mq_msgsize", "mq_curmsgs")
@@ -149,16 +138,6 @@ interface PosixMq : Library {
      */
     @Throws(LastErrorException::class)
     fun mq_send(mqdes: mqd_t, char: ByteArray, msg_len: Long, msg_prio: Int): Int
-
-    /**
-     * Get currently set attributes of a message queue. See mq_getattr(3).
-     *
-     * @param mqdes The queue descriptor
-     * @param attr  MqAttr instance to write the attributes into.
-     * @return Error code
-     */
-    @Throws(LastErrorException::class)
-    fun mq_getattr(mqdes: mqd_t, attr: MqAttr): Int
 }
 
 /**

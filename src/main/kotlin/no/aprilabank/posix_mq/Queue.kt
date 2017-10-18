@@ -1,9 +1,10 @@
 package no.aprilabank.posix_mq
 
+import java.io.File
+
 data class Queue(
         val name: String,
         val descriptor: mqd_t,
-        val maxPending: Long,
         val maxSize: Long
 ) : AutoCloseable {
     companion object {
@@ -31,53 +32,27 @@ data class Queue(
             val oflag = (O_RDWR or O_CREAT or O_EXCL)
             val mode = 384 // 0600 (Kotlin does not support octal literals)
             val descriptor = withMappedException { POSIX_MQ.mq_open(name, oflag, mode, null) }
+            val maxSize = readDefaultMaxSize()
 
-            val attr = withMappedException {
-                val attr = MqAttr.empty()
-                POSIX_MQ.mq_getattr(descriptor, attr)
-                return@withMappedException attr
-            }
-
-            return Queue(name, descriptor, attr.mq_maxmsg.toLong(), attr.mq_msgsize.toLong())
+            return Queue(name, descriptor, maxSize)
         }
 
         /**
          * Opens an existing queue.
          *
+         * The JNA bindings can not read the queue attributes via the C-calls, so the size maximum size must be
+         * specified here.
+         *
+         * @param name    The name of the queue
+         * @param maxSize Maximum size of a queue message (in bytes)
+         *
          * @throws PosixMqException This exception is thrown with an error description if the C library call fails.
          */
-        fun open(name: String): Queue {
+        fun open(name: String, maxSize: Long = readDefaultMaxSize()): Queue {
             validateName(name)
             val descriptor = withMappedException { POSIX_MQ.mq_open(name, O_RDWR) }
 
-            val attr = withMappedException {
-                val attr = MqAttr.empty()
-                POSIX_MQ.mq_getattr(descriptor, attr)
-                return@withMappedException attr
-            }
-
-            return Queue(name, descriptor, attr.mq_maxmsg.toLong(), attr.mq_msgsize.toLong())
-        }
-
-        /**
-         * Opens an existing queue or creates a new queue with the OS default settings.
-         *
-         * @param name Name to use for the message queue. Must start with a '/', but not contain more than one '/'.
-         *
-         * @throws PosixMqException This exception is thrown with an error description if the C library call fails.
-         */
-        fun openOrCreate(name: String): Queue {
-            validateName(name)
-            val oflag = (O_RDWR or O_CREAT)
-            val mode = 384 // 0600 (Kotlin does not support octal literals)
-            val descriptor = withMappedException { POSIX_MQ.mq_open(name, oflag, mode, null) }
-            val attr = withMappedException {
-                val attr = MqAttr.empty()
-                POSIX_MQ.mq_getattr(descriptor, attr)
-                return@withMappedException attr
-            }
-
-            return Queue(name, descriptor, attr.mq_maxmsg.toLong(), attr.mq_msgsize.toLong())
+            return Queue(name, descriptor, maxSize)
         }
 
         @Throws(PosixMqException::class)
@@ -97,6 +72,12 @@ data class Queue(
             if (name.count({ c -> c.equals('/') }) > 1) {
                 throw PosixMqException("Queue name can not contain more than one slash")
             }
+        }
+
+        // Reads the default maximum message size from system settings
+        private fun readDefaultMaxSize(): Long {
+            val fileInputStream = File("/proc/sys/fs/mqueue/msgsize_default").inputStream()
+            return fileInputStream.bufferedReader().readLine().toLong()
         }
     }
 
