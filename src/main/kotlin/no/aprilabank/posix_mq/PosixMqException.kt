@@ -14,6 +14,7 @@ enum class PosixMqError {
     QueueNotFound,
     InsufficientMemory,
     InsufficientSpace,
+    MessageSizeMismatch,
 
     // These two are (hopefully) unlikely in modern systems
     ProcessFileDescriptorLimitReached,
@@ -34,6 +35,7 @@ fun PosixMqError.description(): String {
         QueueNotFound -> "the specified queue could not be found"
         InsufficientMemory -> "insufficient memory to call queue method"
         InsufficientSpace -> "insufficient space to call queue method"
+        MessageSizeMismatch -> "configured message size did not match"
         ProcessFileDescriptorLimitReached -> "maximum number of process file descriptors reached"
         SystemFileDescriptorLimitReached -> "maximum number of system file descriptors reached"
         UnknownForeignError -> "unknown foreign error occured: please report a bug!"
@@ -50,15 +52,16 @@ fun PosixMqError.description(): String {
  */
 fun Int.toPosixMqError(): PosixMqError {
     return when (this) {
-        ENOENT -> QueueNotFound
-        EINTR  -> QueueCallInterrupted
-        EBADF  -> InvalidQueueDescriptor
-        ENOMEM -> InsufficientMemory
-        EACCES -> PermissionDenied
-        EEXIST -> QueueAlreadyExists
-        ENFILE -> SystemFileDescriptorLimitReached
-        EMFILE -> ProcessFileDescriptorLimitReached
-        ENOSPC -> InsufficientSpace
+        EACCES   -> PermissionDenied
+        EBADF    -> InvalidQueueDescriptor
+        EEXIST   -> QueueAlreadyExists
+        EINTR    -> QueueCallInterrupted
+        EMFILE   -> ProcessFileDescriptorLimitReached
+        EMSGSIZE -> MessageSizeMismatch
+        ENFILE   -> SystemFileDescriptorLimitReached
+        ENOENT   -> QueueNotFound
+        ENOMEM   -> InsufficientMemory
+        ENOSPC   -> InsufficientSpace
         else -> UnknownForeignError
     }
 }

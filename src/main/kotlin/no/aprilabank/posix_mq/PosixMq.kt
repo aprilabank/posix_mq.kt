@@ -27,6 +27,7 @@ const val EEXIST = 17
 const val ENFILE = 23
 const val EMFILE = 24
 const val ENOSPC = 28
+const val EMSGSIZE = 90
 
 // Possible queue options
 const val O_RDONLY = 0
